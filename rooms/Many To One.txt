@@ -1,0 +1,9 @@
+Many To One
+One To Many
+
+[Room1, Room2, Room3] => User1
+User1 => [Room1, Room2, Room3]
+
+Many To Many
+
+[Amenity1, Amenity2, Amenity3] => [Room1, Room2, Room3]

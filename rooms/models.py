@@ -1,20 +1,17 @@
 from django.db import models
 
+# Common model을 import 해준다
+from common.models import CommonModel
+
 
 # Create your models here.
-class Room(models.Model):
+class Room(CommonModel):
     """Room Model Definition"""
 
     class RoomKindChoices(models.TextChoices):
-        ENTIRE_PLACE = (
-            "entire_place",
-            "Entire Place",
-        )
-        PRIVATE_ROOM = (
-            "private_room",
-            "Private Room",
-        )
-        SHARED_ROOM = "shared_room", "Srared Room"
+        ENTIRE_PLACE = ("entire_place", "Entire Place")
+        PRIVATE_ROOM = ("private_room", "Private Room")
+        SHARED_ROOM = "shared_room", "Shared Room"
 
     country = models.CharField(
         max_length=50,
@@ -34,15 +31,19 @@ class Room(models.Model):
     pet_friendly = models.BooleanField(default=True)
     kind = models.CharField(
         max_length=20,
-        choices=RoomKindChoices,
+        choices=RoomKindChoices.choices,
     )
     owner = models.ForeignKey(
         "users.User",
         on_delete=models.CASCADE,
     )
+    # Many To Many 관계를 표현해준다
+    amenities = models.ManyToManyField(
+        "rooms.Amenity",
+    )
 
 
-class Amenity(models.Model):
+class Amenity(CommonModel):
     """Amenity Definition"""
 
     name = models.CharField(max_length=150)
