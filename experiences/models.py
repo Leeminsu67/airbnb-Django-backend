@@ -29,6 +29,14 @@ class Experience(CommonModel):
     perks = models.ManyToManyField(
         "experiences.Perk",
     )
+    # 카테고리 외래키 설정
+    # SET_NULL은 카테고리를 삭제된다면 Experiences의 카테고리를 null로 만든다
+    category = models.ForeignKey(
+        "categories.Category",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
 
     def __str__(self) -> str:
         return self.name
