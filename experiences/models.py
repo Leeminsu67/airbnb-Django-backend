@@ -17,6 +17,7 @@ class Experience(CommonModel):
     host = models.ForeignKey(
         "users.User",
         on_delete=models.CASCADE,
+        related_name="experiences",
     )
     price = models.PositiveIntegerField()
     address = models.CharField(
@@ -28,6 +29,7 @@ class Experience(CommonModel):
     description = models.TextField()
     perks = models.ManyToManyField(
         "experiences.Perk",
+        related_name="experiences",
     )
     # 카테고리 외래키 설정
     # SET_NULL은 카테고리를 삭제된다면 Experiences의 카테고리를 null로 만든다
@@ -36,6 +38,7 @@ class Experience(CommonModel):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
+        related_name="experiences",
     )
 
     def __str__(self) -> str:
