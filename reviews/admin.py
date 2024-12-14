@@ -24,6 +24,7 @@ class WordFilter(admin.SimpleListFilter):
             ),
         ]
 
+    # queryset은 필터링된 객체 즉, 필터링된 review를 리턴해야하는 메소드
     def queryset(self, request, reviews):
         word = self.value()
         if word:
@@ -55,8 +56,10 @@ class CustomRatingFilter(admin.SimpleListFilter):
 
         if reviewFilter:
             return (
+                # 이상
                 reviews.filter(rating__gte=3)
                 if reviewFilter == "good"
+                # 미만
                 else reviews.filter(rating__lt=3)
             )
         else:
