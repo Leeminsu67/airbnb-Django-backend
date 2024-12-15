@@ -58,6 +58,22 @@ class Room(CommonModel):
     def total_amenities(self):
         return self.amenities.count()
 
+    def rating(room):
+        # room.reviews는 reviews.Review 클래스의 room 컬럼의 related_name 값이다
+        # 안 했다면 review_set이라고 써야함
+        # return room.reviews.count()
+        count = room.reviews.count()
+        if count == 0:
+            return "No Revies"
+        else:
+            total_rating = 0
+            # for review in room.reviews.all():
+            # .values[컬럼명] 원하는 데이터만 특정해서 가지고 올 수 있다
+            for review in room.reviews.all().values("rating"):
+                # total_rating += review.rating
+                total_rating += review["rating"]
+            return round(total_rating / count, 2)
+
 
 class Amenity(CommonModel):
     """Amenity Definition"""
