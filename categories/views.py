@@ -1,23 +1,14 @@
-from .models import Category
+from rest_framework.views import APIView
+from rest_framework.exceptions import NotFound
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.status import HTTP_204_NO_CONTENT
+from rest_framework.viewsets import ModelViewSet
+from .models import Category
 from .serializers import CategorySerializer
 
 
-@api_view(["GET", "POST"])
-def categories(request):
+class CategoryViewSet(ModelViewSet):
 
-    if request.method == "GET":
-        all_categories = Category.objects.all()
-        serializer = CategorySerializer(all_categories, many=True)
-        return Response(serializer.data)
-    elif request.method == "POST":
-        print(request.data)
-        return Response({"created": True})
-
-
-@api_view()
-def category(request, pk):
-    category = Category.objects.get(pk=pk)
-    serializer = CategorySerializer(category)
-    return Response(serializer.data)
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
