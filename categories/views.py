@@ -1,6 +1,8 @@
 from .models import Category
+from rest_framework.exceptions import NotFound
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.status import HTTP_204_NO_CONTENT
 from .serializers import CategorySerializer
 
 
@@ -25,10 +27,35 @@ def categories(request):
 
 
 # {"name": "Category from DRF", "kind": "rooms"}
+# {"kind": "lalalalal"}
 
 
-@api_view()
+@api_view(["GET", "PUT", "DELETE"])
 def category(request, pk):
-    category = Category.objects.get(pk=pk)
-    serializer = CategorySerializer(category)
-    return Response(serializer.data)
+    try:
+        category = Category.objects.get(pk=pk)
+    except Category.DoesNotExist:
+        # 에러 반환
+        raise NotFound
+
+    if request.method == "GET":
+        serializer = CategorySerializer(category)
+        return Response(serializer.data)
+    elif request.method == "PUT":
+        serializer = CategorySerializer(
+            category,
+            data=request.data,
+            # 여기로 들어오는 데이터가 완벽한 형태가 아닐수도 있다는걸 알게됨
+            partial=True,
+        )
+        if serializer.is_valid():
+            updated_category = serializer.save()
+
+            return Response(
+                CategorySerializer(updated_category).data,
+            )
+        else:
+            return Response(serializer.errors)
+    elif request.method == "DELETE":
+        category.delete()
+        return Response(status=HTTP_204_NO_CONTENT)
