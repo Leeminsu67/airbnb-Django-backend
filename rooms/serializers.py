@@ -15,14 +15,24 @@ class AmenitySerializer(ModelSerializer):
 
 
 class RoomDetailSerializer(ModelSerializer):
-    owner = TinyUserSerializer()
+    # owner = TinyUserSerializer()
+    owner = TinyUserSerializer(read_only=True)
     # 해당 데이터가 배열일경우 many=True 설정 해줘야함
-    amenities = AmenitySerializer(many=True)
-    category = CategorySerializer()
+    amenities = AmenitySerializer(
+        read_only=True,
+        many=True,
+    )
+    category = CategorySerializer(
+        read_only=True,
+    )
 
     class Meta:
         model = Room
         fields = "__all__"
+
+    # def create(self, validated_data):
+    #     print(validated_data)
+    #     return
 
 
 class RoomSerializer(ModelSerializer):
