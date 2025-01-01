@@ -4,7 +4,7 @@ from common.models import CommonModel
 
 class Photo(CommonModel):
 
-    file = models.ImageField()
+    file = models.URLField()
     description = models.CharField(
         max_length=140,
     )
@@ -29,7 +29,7 @@ class Photo(CommonModel):
 
 class Video(CommonModel):
 
-    file = models.FileField()
+    file = models.URLField()
     # OneToOneField를 사용하면 이 활동에 종속되고 다른 어떠한 동영상도 이 활동에 종속될 수 없다
     # 활동은 하나의 영상만 가질 수 있다.
     experience = models.OneToOneField(
