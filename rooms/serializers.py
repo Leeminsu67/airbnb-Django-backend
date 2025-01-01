@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .models import Amenity, Room
 from users.serializers import TinyUserSerializer
 from categories.serializers import CategorySerializer
+from reviews.serializers import ReviewSerializer
 
 
 class AmenitySerializer(ModelSerializer):
@@ -29,6 +30,10 @@ class RoomDetailSerializer(ModelSerializer):
     # serializer에서 models.py에 있는 메서드를 가져와서 보여주고 싶을때
     rating = serializers.SerializerMethodField()
     is_owner = serializers.SerializerMethodField()
+    reviews = ReviewSerializer(
+        many=True,
+        read_only=True,
+    )
 
     class Meta:
         model = Room
