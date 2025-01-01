@@ -11,6 +11,7 @@ from rest_framework.status import HTTP_204_NO_CONTENT
 from .models import Amenity, Room
 from categories.models import Category
 from .serializers import AmenitySerializer, RoomSerializer, RoomDetailSerializer
+from reviews.serializers import ReviewSerializer
 
 
 class Amenities(APIView):
@@ -216,3 +217,34 @@ class RoomDetail(APIView):
 
         room.delete()
         return Response(status=HTTP_204_NO_CONTENT)
+
+
+class RoomReviews(APIView):
+
+    def get_object(self, pk):
+        try:
+            return Room.objects.get(pk=pk)
+        except Room.DoesNotExist:
+            raise NotFound
+
+    def get(self, request, pk):
+        # 숫자가 아닌 경우를 예외처리하기 위함
+        try:
+            # get함수에 기본값을 설정할 수 있음 두번째 인자에 넣어주면 된다
+            page = int(request.query_params.get("page", 1))
+            print(type(page))
+        except ValueError:
+            page = 1
+        # pagenation 로직 구현
+        page_size = 3
+        start = (page - 1) * page_size
+        end = start + page_size
+
+        room = self.get_object(pk)
+        serializer = ReviewSerializer(
+            # 모든 데이터를 가지고 와서 배열별로 자르는게 아닌
+            # start와 end가 offset과 LIMIT 쿼리로 변환이 되어 쿼리 속도가 빠르게 된다
+            room.reviews.all()[start:end],
+            many=True,
+        )
+        return Response(serializer.data)

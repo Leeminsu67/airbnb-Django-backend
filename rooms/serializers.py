@@ -30,10 +30,6 @@ class RoomDetailSerializer(ModelSerializer):
     # serializer에서 models.py에 있는 메서드를 가져와서 보여주고 싶을때
     rating = serializers.SerializerMethodField()
     is_owner = serializers.SerializerMethodField()
-    reviews = ReviewSerializer(
-        many=True,
-        read_only=True,
-    )
 
     class Meta:
         model = Room
