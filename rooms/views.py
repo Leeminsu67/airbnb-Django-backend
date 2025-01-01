@@ -157,9 +157,47 @@ class RoomDetail(APIView):
         if room.owner != request.user:
             raise PermissionDenied
 
-        serializer = RoomDetailSerializer(data=request.data)
+        serializer = RoomDetailSerializer(
+            room,
+            data=request.data,
+            partial=True,
+        )
 
-        pass
+        if serializer.is_valid():
+            # Category
+            category_pk = request.data.get("category")
+            if category_pk:
+                try:
+                    category = Category.objects.get(pk=category_pk)
+                    if category.kind == Category.CategoryKindChoices.EXPERIENCES:
+                        raise ParseError(detail="The category kind should be rooms")
+                except Category.DoesNotExist:
+                    raise ParseError(detail="Category not found")
+
+            # 트랜잭션 실행
+            try:
+                with transaction.atomic():
+                    # Category check
+                    if category_pk:
+                        updated_room = serializer.save(category=category)
+                    else:
+                        updated_room = serializer.save()
+
+                    # Amenity
+                    amenities = request.data.get("amenities")
+                    if amenities:
+                        updated_room.amenities.clear()
+                        for amenity_pk in amenities:
+                            amenity = Amenity.objects.get(pk=amenity_pk)
+                            updated_room.amenities.add(amenity)
+                    else:
+                        updated_room.amenities.clear()
+
+                return Response(RoomDetailSerializer(updated_room).data)
+            except Exception:
+                raise ParseError(detail="Amenity not found")
+        else:
+            return Response(serializer.errors)
 
     def delete(self, request, pk):
         room = self.get_object(pk)
