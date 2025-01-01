@@ -1,4 +1,5 @@
 from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
 from .models import Amenity, Room
 from users.serializers import TinyUserSerializer
 from categories.serializers import CategorySerializer
@@ -25,17 +26,21 @@ class RoomDetailSerializer(ModelSerializer):
     category = CategorySerializer(
         read_only=True,
     )
+    # serializer에서 models.py에 있는 메서드를 가져와서 보여주고 싶을때
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Room
         fields = "__all__"
 
-    # def create(self, validated_data):
-    #     print(validated_data)
-    #     return
+    # 무조건 get을 붙여줘야하고 get_속성값
+    def get_rating(self, room):
+        return room.rating()
 
 
 class RoomSerializer(ModelSerializer):
+    rating = serializers.SerializerMethodField()
+
     class Meta:
         model = Room
         # fields = "__all__"
@@ -49,4 +54,8 @@ class RoomSerializer(ModelSerializer):
             "country",
             "city",
             "price",
+            "rating",
         )
+
+    def get_rating(self, room):
+        return room.rating()
