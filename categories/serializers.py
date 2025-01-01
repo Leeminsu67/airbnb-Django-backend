@@ -15,7 +15,10 @@ class CategorySerializer(serializers.ModelSerializer):
         # 보여줄 때 제외하고 싶은것
         # exclude = ("created_at",)
         # 모두 보여주고 싶을때
-        fields = "__all__"
+        fields = (
+            "name",
+            "kind",
+        )
 
 
 # class CategorySerializer(serializers.Serializer):
