@@ -143,3 +143,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Auth
 # django한테 user모델 이걸 쓰고 싶다고 알려준다
 AUTH_USER_MODEL = "users.User"
+
+# 이미지가 저장될 경로를 적어줌
+# 서버에 실제로 파일이 존재하는 장소
+MEDIA_ROOT = "uploads"
+
+# 브라우저가 파일에 가는 방법
+MEDIA_URL = "user-uploads/"
+
+PAGE_SIZE = 3
