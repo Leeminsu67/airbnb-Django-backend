@@ -243,7 +243,6 @@ class RoomReviews(APIView):
         try:
             # get함수에 기본값을 설정할 수 있음 두번째 인자에 넣어주면 된다
             page = int(request.query_params.get("page", 1))
-            print(type(page))
         except ValueError:
             page = 1
         # pagenation 로직 구현
