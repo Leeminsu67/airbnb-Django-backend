@@ -1,20 +1,22 @@
-from rest_framework.views import APIView
+from django.conf import settings
+from django.utils import timezone
 from django.db import transaction
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import (
     NotFound,
-    NotAuthenticated,
     ParseError,
     PermissionDenied,
 )
 from rest_framework.status import HTTP_204_NO_CONTENT
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Amenity, Room
 from categories.models import Category
 from .serializers import AmenitySerializer, RoomSerializer, RoomDetailSerializer
 from reviews.serializers import ReviewSerializer
-from django.conf import settings
 from medias.serializers import PhotoSerializer
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from bookings.models import Booking
+from bookings.serializers import PublicBookingSerializer
 
 
 class Amenities(APIView):
@@ -295,3 +297,60 @@ class RoomPhotos(APIView):
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
+
+
+class RoomBookings(APIView):
+
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_object(self, pk):
+        try:
+            return Room.objects.get(pk=pk)
+        except Room.DoesNotExist:
+            raise NotFound
+
+    def get(self, request, pk):
+        # 현재시간
+        now = timezone.localtime(timezone.now()).date()
+        # 년도와 월 정보를 query_params로 받아온다
+        try:
+            month = int(request.query_params.get("month", now.month))
+            year = int(request.query_params.get("year", now.year))
+            if year < now.year:
+                year = now.year
+                month = now.month
+            elif (year == now.year) and (month < now.month):
+                month = now.month
+
+        except:
+            month = now.month
+            year = now.year
+
+        search_date_start = now.replace(year=year, month=month, day=1)
+
+        next_month = month + 1 if month < 12 else 1
+        next_month_year = year if month < 12 else year + 1
+        search_date_end = now.replace(year=next_month_year, month=next_month, day=1)
+
+        # pagenation
+        try:
+            page = int(request.query_params.get("page", 1))
+        except ValueError:
+            page = 1
+        page_size = settings.PAGE_SIZE
+        start = (page - 1) * page_size
+        end = start + page_size
+
+        room = self.get_object(pk)
+        bookings = Booking.objects.filter(
+            room=room,
+            kind=Booking.BookingKindChoices.ROOM,
+            # check_in 날짜가 (우리가 있는 곳의) 현재 날짜보다 큰 booking을 찾고 있음
+            check_in__gt=search_date_start,
+            check_in__lt=search_date_end,
+        )
+        serializer = PublicBookingSerializer(
+            bookings.all()[start:end],
+            many=True,
+        )
+        return Response(serializer.data)
