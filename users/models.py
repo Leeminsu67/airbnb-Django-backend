@@ -30,7 +30,7 @@ class User(AbstractUser):
     )
     # avatar = models.ImageField()
     # blank=True는 필드가 필수적이지 않게 해준다(null 허용처럼)
-    avatar = models.ImageField(blank=True)
+    avatar = models.URLField(blank=True)
     name = models.CharField(
         max_length=150,
         default="",
